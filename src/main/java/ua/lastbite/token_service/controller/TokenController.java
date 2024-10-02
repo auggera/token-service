@@ -23,13 +23,7 @@ public class TokenController {
 
     @PostMapping("/validate")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request) {
-        boolean isValid = tokenService.validateToken(request);
-        TokenValidationResponse response = new TokenValidationResponse(isValid, null);
-
-        if (isValid) {
-            Integer userId = tokenService.extractUserIdFromToken(request.getToken());
-            response.setUserId(userId);
-        }
+        TokenValidationResponse response = tokenService.validateToken(request);
 
         return ResponseEntity.ok(response);
     }
@@ -38,11 +32,5 @@ public class TokenController {
     public ResponseEntity<Integer> extractUserId(@RequestParam("token") String token) {
         Integer userId = tokenService.extractUserIdFromToken(token);
         return ResponseEntity.ok(userId);
-    }
-
-    @PostMapping("/mark-used")
-    public ResponseEntity<String> markUsed(@RequestParam("token") TokenValidationRequest request) {
-        tokenService.markTokenAsUsed(request.getToken());
-        return ResponseEntity.ok("Token marked as used");
     }
 }
