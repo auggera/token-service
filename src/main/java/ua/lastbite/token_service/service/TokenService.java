@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.lastbite.token_service.config.TokenConfig;
 import ua.lastbite.token_service.dto.TokenRequest;
 import ua.lastbite.token_service.dto.TokenValidationRequest;
 import ua.lastbite.token_service.dto.TokenValidationResponse;
@@ -20,7 +21,6 @@ import java.util.UUID;
 @Service
 public class TokenService {
 
-    private static final long TOKEN_EXPIRATION_TIME = 24 * 60 * 60;
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
 
     @Autowired
@@ -29,9 +29,12 @@ public class TokenService {
     @Autowired
     private TokenMapper tokenMapper;
 
+    @Autowired
+    TokenConfig tokenConfig;
+
     public String generateToken(TokenRequest request) {
         LOGGER.info("Generating token for user ID: {}", request.getUserId());
-        Token token = tokenMapper.toEntity(request);
+        Token token = tokenMapper.toEntity(request, tokenConfig.getTokenExpirationTime());
         String tokenValue = generateTokenValue(request.getUserId());
         token.setTokenValue(tokenValue);
 

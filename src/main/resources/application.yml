@@ -12,7 +12,11 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+token:
+  expiration-time: 86400 # 24 hours
+
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+
