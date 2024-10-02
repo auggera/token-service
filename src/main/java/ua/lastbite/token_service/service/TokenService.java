@@ -8,6 +8,7 @@ import ua.lastbite.token_service.repository.TokenRepository;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,5 +32,16 @@ public class TokenService {
 
         tokenRepository.save(token);
         return tokenValue;
+    }
+
+    public boolean validateToken(String tokenValue) {
+        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
+
+        if (tokenOpt.isPresent()) {
+            Token token = tokenOpt.get();
+
+            return token.getExpiresAt().isAfter(LocalDateTime.now()) && !token.isUsed();
+        }
+        return false;
     }
 }
