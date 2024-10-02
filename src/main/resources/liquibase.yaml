@@ -1,0 +1,4 @@
+changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+url: ${TOKEN_SERVICE_DATABASE_URL}
+username: ${TOKEN_SERVICE_DATABASE_USERNAME}
+password: ${TOKEN_SERVICE_DATABASE_PASSWORD}
