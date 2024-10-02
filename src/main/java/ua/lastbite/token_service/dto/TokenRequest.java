@@ -9,6 +9,6 @@ import lombok.*;
 @Getter
 public class TokenRequest {
 
-    @NotBlank
+    @NotBlank(message = "User ID cannot be empty")
     private Integer userId;
 }

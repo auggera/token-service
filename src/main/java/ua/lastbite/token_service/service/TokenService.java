@@ -5,6 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.lastbite.token_service.dto.TokenRequest;
+import ua.lastbite.token_service.dto.TokenValidationRequest;
+import ua.lastbite.token_service.dto.TokenValidationResponse;
+import ua.lastbite.token_service.exception.TokenNotFoundException;
+import ua.lastbite.token_service.mapper.TokenMapper;
 import ua.lastbite.token_service.model.Token;
 import ua.lastbite.token_service.repository.TokenRepository;
 
@@ -19,38 +23,52 @@ public class TokenService {
     private static final long TOKEN_EXPIRATION_TIME = 24 * 60 * 60;
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
 
-
     @Autowired
     private TokenRepository tokenRepository;
 
+    @Autowired
+    private TokenMapper tokenMapper;
+
     public String generateToken(TokenRequest request) {
         LOGGER.info("Generating token for user ID: {}", request.getUserId());
-
-        String tokenValue = Base64.getEncoder()
-                .encodeToString((request.getUserId() + ":" + UUID.randomUUID()).getBytes());
-
-        Token token = new Token();
+        Token token = tokenMapper.toEntity(request);
+        String tokenValue = generateTokenValue(request.getUserId());
         token.setTokenValue(tokenValue);
-        token.setUserId(request.getUserId());
-        token.setCreatedAt(LocalDateTime.now());
-        token.setExpiresAt(LocalDateTime.now().plusSeconds(TOKEN_EXPIRATION_TIME));
-        token.setUsed(false);
 
         tokenRepository.save(token);
         return tokenValue;
     }
 
-    public boolean validateToken(String tokenValue) {
-        LOGGER.info("Validating token: {}", tokenValue);
+    private String generateTokenValue(Integer userId) {
+        return Base64.getEncoder()
+                .encodeToString((userId + ":" + UUID.randomUUID()).getBytes());
+    }
 
-        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
+    public TokenValidationResponse validateToken(TokenValidationRequest request) {
+        LOGGER.info("Validating token: {}", request.getToken());
 
-        if (tokenOpt.isPresent()) {
-            Token token = tokenOpt.get();
+        Token token = tokenRepository.findByTokenValue(request.getToken())
+                .orElseThrow(() -> new TokenNotFoundException(request.getToken()));
 
-            return token.getExpiresAt().isAfter(LocalDateTime.now()) && !token.isUsed();
+        if (!isValidToken(token)) {
+            LOGGER.info("Token is expired or used: {}", token.getTokenValue());
+            return new TokenValidationResponse(false, null);
         }
-        return false;
+
+        LOGGER.info("Token is valid. User ID: {}", token.getUserId());
+        markTokenAsUsed(token);
+
+        return new TokenValidationResponse(true, token.getUserId());
+    }
+
+    private boolean isValidToken(Token token) {
+            return token.getExpiresAt().isAfter(LocalDateTime.now()) && !token.isUsed();
+    }
+
+    private void markTokenAsUsed(Token token) {
+        LOGGER.info("Marking token as used: {}", token.getTokenValue());
+        token.setUsed(true);
+        tokenRepository.save(token);
     }
 
     public Integer extractUserIdFromToken(String tokenValue) {
@@ -59,19 +77,6 @@ public class TokenService {
 
         if (tokenOpt.isPresent()) {
             return tokenOpt.get().getUserId();
-        }
-
-        throw new IllegalArgumentException("Invalid token");
-    }
-
-    public void markTokenAsUsed(String tokenValue) {
-        LOGGER.info("Marking token as used: {}", tokenValue);
-        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
-
-        if (tokenOpt.isPresent()) {
-            Token token = tokenOpt.get();
-            token.setUsed(true);
-            tokenRepository.save(token);
         }
 
         throw new IllegalArgumentException("Invalid token");
