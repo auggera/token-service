@@ -27,10 +27,4 @@ public class TokenController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/extract-user")
-    public ResponseEntity<Integer> extractUserId(@RequestParam("token") String token) {
-        Integer userId = tokenService.extractUserIdFromToken(token);
-        return ResponseEntity.ok(userId);
-    }
 }

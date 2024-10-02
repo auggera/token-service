@@ -15,7 +15,6 @@ import ua.lastbite.token_service.repository.TokenRepository;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -72,16 +71,5 @@ public class TokenService {
         LOGGER.info("Marking token as used: {}", token.getTokenValue());
         token.setUsed(true);
         tokenRepository.save(token);
-    }
-
-    public Integer extractUserIdFromToken(String tokenValue) {
-        LOGGER.info("Extracting user ID from token: {}", tokenValue);
-        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
-
-        if (tokenOpt.isPresent()) {
-            return tokenOpt.get().getUserId();
-        }
-
-        throw new IllegalArgumentException("Invalid token");
     }
 }
