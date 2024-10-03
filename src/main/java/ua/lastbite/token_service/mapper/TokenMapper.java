@@ -3,7 +3,7 @@ package ua.lastbite.token_service.mapper;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ua.lastbite.token_service.dto.TokenRequest;
+import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.model.Token;
 
 
