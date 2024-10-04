@@ -8,6 +8,7 @@ import ua.lastbite.token_service.config.TokenConfig;
 import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationResponse;
+import ua.lastbite.token_service.dto.user.UserDto;
 import ua.lastbite.token_service.exception.TokenNotFoundException;
 import ua.lastbite.token_service.mapper.TokenMapper;
 import ua.lastbite.token_service.model.Token;
@@ -31,8 +32,13 @@ public class TokenService {
     @Autowired
     TokenConfig tokenConfig;
 
+    @Autowired
+    UserServiceClient userServiceClient;
+
     public String generateToken(TokenRequest request) {
         LOGGER.info("Generating token for user ID: {}", request.getUserId());
+        userServiceClient.getUserById(request.getUserId());
+
         Token token = tokenMapper.toEntity(request, tokenConfig.getTokenExpirationTime());
         String tokenValue = generateTokenValue(request.getUserId());
         token.setTokenValue(tokenValue);

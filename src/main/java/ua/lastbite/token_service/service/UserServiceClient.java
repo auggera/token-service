@@ -9,6 +9,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ua.lastbite.token_service.dto.user.UserDto;
+import ua.lastbite.token_service.exception.ServiceUnavailableException;
 import ua.lastbite.token_service.exception.UserNotFoundException;
 
 @Service
@@ -34,7 +35,7 @@ public class UserServiceClient {
             throw new UserNotFoundException(id);
         } catch (RestClientException e) {
             LOGGER.error("Error occurred while calling user-service for ID: {}", id, e);
-            throw new RuntimeException("Failed to communicate with user-service");
+            throw new ServiceUnavailableException("Failed to communicate with user-service");
         }
     }
 }
