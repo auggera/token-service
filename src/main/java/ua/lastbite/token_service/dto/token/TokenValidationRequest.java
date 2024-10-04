@@ -1,4 +1,4 @@
-package ua.lastbite.token_service.dto;
+package ua.lastbite.token_service.dto.token;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
