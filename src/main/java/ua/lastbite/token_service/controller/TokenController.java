@@ -3,9 +3,9 @@ package ua.lastbite.token_service.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ua.lastbite.token_service.dto.TokenRequest;
-import ua.lastbite.token_service.dto.TokenValidationRequest;
-import ua.lastbite.token_service.dto.TokenValidationResponse;
+import ua.lastbite.token_service.dto.token.TokenRequest;
+import ua.lastbite.token_service.dto.token.TokenValidationRequest;
+import ua.lastbite.token_service.dto.token.TokenValidationResponse;
 import ua.lastbite.token_service.service.TokenService;
 
 @RestController

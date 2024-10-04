@@ -2,7 +2,7 @@ package ua.lastbite.token_service.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import ua.lastbite.token_service.dto.TokenRequest;
+import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.model.Token;
 
 import static org.junit.jupiter.api.Assertions.*;
