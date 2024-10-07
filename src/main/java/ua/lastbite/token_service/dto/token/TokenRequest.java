@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
+@EqualsAndHashCode
 public class TokenRequest {
 
     @NotBlank(message = "User ID cannot be empty")
