@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class TokenValidationRequest {
 
     @NotBlank(message = "Token cannot be empty")
