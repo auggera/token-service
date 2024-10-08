@@ -29,7 +29,9 @@ public class UserServiceClient {
         String url = userServiceUrl + "/users/" + id;
         try {
             LOGGER.info("Requesting user with ID: {}", id);
-            return restTemplate.getForObject(url, UserDto.class);
+            UserDto userDto =  restTemplate.getForObject(url, UserDto.class);
+            LOGGER.debug("User data retrieved: {}", userDto);
+            return userDto;
         } catch (HttpClientErrorException.NotFound e) {
             LOGGER.error("User not found with ID: {}", id);
             throw new UserNotFoundException(id);

@@ -7,6 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class UserDto {
 
     private Integer id;

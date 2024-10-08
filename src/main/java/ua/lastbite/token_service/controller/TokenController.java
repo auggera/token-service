@@ -1,5 +1,7 @@
 package ua.lastbite.token_service.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,19 +14,28 @@ import ua.lastbite.token_service.service.TokenService;
 @RequestMapping("/api/tokens")
 public class TokenController {
 
+    private final TokenService tokenService;
+
     @Autowired
-    TokenService tokenService;
+    public TokenController(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenController.class);
 
     @PostMapping("/generate")
     public ResponseEntity<String> generateToken(@RequestBody TokenRequest request) {
-        String token = tokenService.generateToken(request);
-        return ResponseEntity.ok(token);
+        LOGGER.info("Received request to generate token for user ID: {}", request.getUserId());
+        String tokenValue = tokenService.generateToken(request);
+        LOGGER.info("Token successfully generated for user ID: {}", request.getUserId());
+        return ResponseEntity.ok(tokenValue);
     }
 
     @PostMapping("/validate")
     public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request) {
+        LOGGER.info("Received request to validate token: {}", request.getTokenValue());
         TokenValidationResponse response = tokenService.validateToken(request);
-
+        LOGGER.info("Token validation result for token {}: {}", request.getTokenValue(), response.isValid());
         return ResponseEntity.ok(response);
     }
 }

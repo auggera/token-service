@@ -73,6 +73,7 @@ public class TokenServiceTest {
         Mockito.when(tokenRepository.save(any(Token.class))).thenReturn(token);
 
         String tokenValue = tokenService.generateToken(tokenRequest);
+        System.out.println(tokenValue);
 
         assertNotNull(tokenValue);
         assertTrue(token.getExpiresAt().isAfter(LocalDateTime.now()));
@@ -114,7 +115,7 @@ public class TokenServiceTest {
 
     @Test
     void testValidateTokenSuccessfully() {
-        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getToken()))
+        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.of(token));
 
         TokenValidationResponse response = tokenService.validateToken(tokenValidationRequest);
@@ -128,12 +129,12 @@ public class TokenServiceTest {
 
     @Test
     void testValidateTokenNotFound() {
-        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getToken()))
+        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.empty());
 
         TokenNotFoundException exception = assertThrows(TokenNotFoundException.class, () -> tokenService.validateToken(tokenValidationRequest));
 
-        assertEquals("Token not found: " + tokenValidationRequest.getToken(), exception.getMessage());
+        assertEquals("Token not found: " + tokenValidationRequest.getTokenValue(), exception.getMessage());
         Mockito.verify(tokenRepository, Mockito.never()).save(token);
     }
 
@@ -142,7 +143,7 @@ public class TokenServiceTest {
         token.setCreatedAt(LocalDateTime.now().minusSeconds(86_401L));
         token.setExpiresAt(token.getCreatedAt().plusSeconds(86_400L));
 
-        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getToken()))
+        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.of(token));
 
         TokenValidationResponse response = tokenService.validateToken(tokenValidationRequest);
@@ -158,7 +159,7 @@ public class TokenServiceTest {
     void testValidateTokenIsAlreadyUsed() {
         token.setUsed(true);
 
-        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getToken()))
+        Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.of(token));
 
         TokenValidationResponse response = tokenService.validateToken(tokenValidationRequest);

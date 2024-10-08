@@ -23,26 +23,30 @@ public class TokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenService.class);
 
-    @Autowired
-    private TokenRepository tokenRepository;
+    private final TokenRepository tokenRepository;
+    private final TokenMapper tokenMapper;
+    private final TokenConfig tokenConfig;
+    private final UserServiceClient userServiceClient;
 
     @Autowired
-    private TokenMapper tokenMapper;
-
-    @Autowired
-    TokenConfig tokenConfig;
-
-    @Autowired
-    UserServiceClient userServiceClient;
+    public TokenService(TokenRepository tokenRepository,TokenMapper tokenMapper,TokenConfig tokenConfig,UserServiceClient userServiceClient) {
+        this.tokenRepository = tokenRepository;
+        this.tokenMapper = tokenMapper;
+        this.tokenConfig = tokenConfig;
+        this.userServiceClient = userServiceClient;
+    }
 
     public String generateToken(TokenRequest request) {
         LOGGER.info("Generating token for user ID: {}", request.getUserId());
-        userServiceClient.getUserById(request.getUserId());
+
+        UserDto userDto = userServiceClient.getUserById(request.getUserId());
+        LOGGER.debug("Retrieved user data: {}", userDto);
 
         Token token = tokenMapper.toEntity(request, tokenConfig.getTokenExpirationTime());
         String tokenValue = generateTokenValue(request.getUserId());
         token.setTokenValue(tokenValue);
 
+        LOGGER.info("Token successfully generated for user ID: {}", request.getUserId());
         tokenRepository.save(token);
         return tokenValue;
     }
@@ -53,10 +57,10 @@ public class TokenService {
     }
 
     public TokenValidationResponse validateToken(TokenValidationRequest request) {
-        LOGGER.info("Validating token: {}", request.getToken());
+        LOGGER.info("Validating token: {}", request.getTokenValue());
 
-        Token token = tokenRepository.findByTokenValue(request.getToken())
-                .orElseThrow(() -> new TokenNotFoundException(request.getToken()));
+        Token token = tokenRepository.findByTokenValue(request.getTokenValue())
+                .orElseThrow(() -> new TokenNotFoundException(request.getTokenValue()));
 
         if (!isValidToken(token)) {
             LOGGER.info("Token is expired or used: {}", token.getTokenValue());

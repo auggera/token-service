@@ -11,5 +11,5 @@ import lombok.*;
 public class TokenValidationRequest {
 
     @NotBlank(message = "Token cannot be empty")
-    private String token;
+    private String tokenValue;
 }

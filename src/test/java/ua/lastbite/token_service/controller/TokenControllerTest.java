@@ -17,12 +17,13 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.dto.user.UserDto;
+import ua.lastbite.token_service.exception.UserNotFoundException;
 import ua.lastbite.token_service.service.TokenService;
 import ua.lastbite.token_service.service.UserServiceClient;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -51,10 +52,10 @@ public class TokenControllerTest {
 
     @Test
     void generateTokenSuccessfully() throws Exception {
-        Mockito.when(userServiceClient.getUserById(1))
+        Mockito.when(userServiceClient.getUserById(tokenRequest.getUserId()))
                         .thenReturn(new UserDto());
 
-        Mockito.when(tokenService.generateToken(any(TokenRequest.class)))
+        Mockito.when(tokenService.generateToken(tokenRequest))
                 .thenReturn("TokenSample");
 
         MvcResult result = mockMvc.perform(post("/api/tokens/generate")
@@ -68,4 +69,19 @@ public class TokenControllerTest {
         String responseContent = result.getResponse().getContentAsString();
         assertEquals("TokenSample", responseContent);
     }
+
+    @Test
+    void generateTokenUserNotFound() throws Exception {
+        Mockito.doThrow(new UserNotFoundException(1))
+                        .when(tokenService).generateToken(tokenRequest);
+
+        mockMvc.perform(post("/api/tokens/generate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tokenRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User with ID 1 not found"));
+    }
+
+
 }
