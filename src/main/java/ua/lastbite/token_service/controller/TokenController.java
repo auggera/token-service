@@ -1,5 +1,6 @@
 package ua.lastbite.token_service.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class TokenController {
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request) {
+    public ResponseEntity<TokenValidationResponse> validateToken(@Valid @RequestBody TokenValidationRequest request) {
         LOGGER.info("Received request to validate token: {}", request.getTokenValue());
         TokenValidationResponse response = tokenService.validateToken(request);
         LOGGER.info("Token validation result for token {}: {}", request.getTokenValue(), response.isValid());
