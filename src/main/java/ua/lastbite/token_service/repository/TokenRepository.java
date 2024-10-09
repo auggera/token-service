@@ -6,5 +6,5 @@ import ua.lastbite.token_service.model.Token;
 import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
-    Optional<Token> findByTokenValue(String token);
+    Optional<Token> findByTokenValue(String tokenValue);
 }
