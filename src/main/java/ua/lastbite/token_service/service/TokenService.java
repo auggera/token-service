@@ -32,7 +32,8 @@ public class TokenService {
     private final UserServiceClient userServiceClient;
 
     @Autowired
-    public TokenService(TokenRepository tokenRepository,TokenMapper tokenMapper,TokenConfig tokenConfig,UserServiceClient userServiceClient) {
+    public TokenService(TokenRepository tokenRepository, TokenMapper tokenMapper
+            , TokenConfig tokenConfig, UserServiceClient userServiceClient) {
         this.tokenRepository = tokenRepository;
         this.tokenMapper = tokenMapper;
         this.tokenConfig = tokenConfig;
@@ -92,7 +93,7 @@ public class TokenService {
         tokenRepository.save(token);
     }
 
-    @Scheduled(cron = "${scheduling.cron}") //Starts every day at midnight
+    @Scheduled(cron = "0 0 0 * * ?") //Starts every day at midnight
     public void removeExpiredAndUsedTokens() {
         LOGGER.info("Starting cleanup of expired and used tokens");
         int deletedTokens = tokenRepository.deleteExpiredOrUsedTokens();

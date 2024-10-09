@@ -13,5 +13,7 @@ public interface TokenMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "expiresAt", expression = "java(java.time.LocalDateTime.now().plusSeconds(tokenExpirationTime))")
     @Mapping(target = "used", constant = "false")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tokenValue", ignore = true)
     Token toEntity(TokenRequest request, @Context long tokenExpirationTime);
 }
