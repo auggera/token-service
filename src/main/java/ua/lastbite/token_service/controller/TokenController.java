@@ -25,7 +25,7 @@ public class TokenController {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenController.class);
 
     @PostMapping("/generate")
-    public ResponseEntity<String> generateToken(@RequestBody TokenRequest request) {
+    public ResponseEntity<String> generateToken(@Valid @RequestBody TokenRequest request) {
         LOGGER.info("Received request to generate token for user ID: {}", request.getUserId());
         String tokenValue = tokenService.generateToken(request);
         LOGGER.info("Token successfully generated for user ID: {}", request.getUserId());
