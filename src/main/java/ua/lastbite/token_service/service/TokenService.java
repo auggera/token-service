@@ -3,6 +3,7 @@ package ua.lastbite.token_service.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ua.lastbite.token_service.config.TokenConfig;
 import ua.lastbite.token_service.dto.token.TokenRequest;
@@ -89,5 +90,12 @@ public class TokenService {
         LOGGER.info("Marking token as used: {}", token.getTokenValue());
         token.setUsed(true);
         tokenRepository.save(token);
+    }
+
+    @Scheduled(cron = "${scheduling.cron}") //Starts every day at midnight
+    public void removeExpiredAndUsedTokens() {
+        LOGGER.info("Starting cleanup of expired and used tokens");
+        int deletedTokens = tokenRepository.deleteExpiredOrUsedTokens();
+        LOGGER.info("Completed cleanup. Number of deleted tokens: {}", deletedTokens);
     }
 }
