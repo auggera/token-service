@@ -1,6 +1,5 @@
 package ua.lastbite.token_service.exception;
 
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.naming.ServiceUnavailableException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,7 +82,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<String> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         LOGGER.error("Handled HttpMessageNotReadableException: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Malformed JSON request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request body is missing or invalid");
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)

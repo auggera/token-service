@@ -66,7 +66,7 @@ public class TokenService {
                 .orElseThrow(() -> new TokenNotFoundException(request.getTokenValue()));
 
         if (isTokenExpired(token)) {
-            LOGGER.error("Token is expired or used: {}", token.getTokenValue());
+            LOGGER.error("Token is expired: {}", token.getTokenValue());
             throw new TokenExpiredException(request.getTokenValue());
         }
 
