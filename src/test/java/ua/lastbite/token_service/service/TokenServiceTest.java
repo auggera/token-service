@@ -15,6 +15,8 @@ import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationResponse;
 import ua.lastbite.token_service.dto.user.UserDto;
+import ua.lastbite.token_service.exception.TokenAlreadyUsedException;
+import ua.lastbite.token_service.exception.TokenExpiredException;
 import ua.lastbite.token_service.exception.TokenNotFoundException;
 import ua.lastbite.token_service.exception.UserNotFoundException;
 import ua.lastbite.token_service.mapper.TokenMapper;
@@ -146,11 +148,9 @@ public class TokenServiceTest {
         Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.of(token));
 
-        TokenValidationResponse response = tokenService.validateToken(tokenValidationRequest);
+        TokenExpiredException exception = assertThrows(TokenExpiredException.class, () -> tokenService.validateToken(tokenValidationRequest));
 
-        assertFalse(response.isValid());
-        assertNull(response.getUserId());
-        assertFalse(token.isUsed());
+        assertEquals("Token has expired: " + token.getTokenValue(), exception.getMessage());
 
         Mockito.verify(tokenRepository, Mockito.never()).save(token);
     }
@@ -162,11 +162,9 @@ public class TokenServiceTest {
         Mockito.when(tokenRepository.findByTokenValue(tokenValidationRequest.getTokenValue()))
                 .thenReturn(Optional.of(token));
 
-        TokenValidationResponse response = tokenService.validateToken(tokenValidationRequest);
+        TokenAlreadyUsedException exception = assertThrows(TokenAlreadyUsedException.class, () -> tokenService.validateToken(tokenValidationRequest));
 
-        assertFalse(response.isValid());
-        assertNull(response.getUserId());
-        assertTrue(token.isUsed());
+        assertEquals("Token has already been used: " + token.getTokenValue(), exception.getMessage());
 
         Mockito.verify(tokenRepository, Mockito.never()).save(token);
     }

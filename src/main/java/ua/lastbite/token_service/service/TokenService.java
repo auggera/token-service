@@ -9,6 +9,8 @@ import ua.lastbite.token_service.dto.token.TokenRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationRequest;
 import ua.lastbite.token_service.dto.token.TokenValidationResponse;
 import ua.lastbite.token_service.dto.user.UserDto;
+import ua.lastbite.token_service.exception.TokenAlreadyUsedException;
+import ua.lastbite.token_service.exception.TokenExpiredException;
 import ua.lastbite.token_service.exception.TokenNotFoundException;
 import ua.lastbite.token_service.mapper.TokenMapper;
 import ua.lastbite.token_service.model.Token;
@@ -62,9 +64,14 @@ public class TokenService {
         Token token = tokenRepository.findByTokenValue(request.getTokenValue())
                 .orElseThrow(() -> new TokenNotFoundException(request.getTokenValue()));
 
-        if (!isValidToken(token)) {
-            LOGGER.info("Token is expired or used: {}", token.getTokenValue());
-            return new TokenValidationResponse(false, null);
+        if (isTokenExpired(token)) {
+            LOGGER.error("Token is expired or used: {}", token.getTokenValue());
+            throw new TokenExpiredException(request.getTokenValue());
+        }
+
+        if (token.isUsed()) {
+            LOGGER.error("Token is used: {}", token.getTokenValue());
+            throw new TokenAlreadyUsedException(request.getTokenValue());
         }
 
         LOGGER.info("Token is valid. User ID: {}", token.getUserId());
@@ -73,8 +80,8 @@ public class TokenService {
         return new TokenValidationResponse(true, token.getUserId());
     }
 
-    private boolean isValidToken(Token token) {
-            return token.getExpiresAt().isAfter(LocalDateTime.now()) && !token.isUsed();
+    private boolean isTokenExpired(Token token) {
+            return token.getExpiresAt().isBefore(LocalDateTime.now());
     }
 
     private void markTokenAsUsed(Token token) {
