@@ -16,14 +16,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import ua.lastbite.token_service.dto.token.TokenRequest;
+import ua.lastbite.token_service.dto.token.TokenValidationRequest;
+import ua.lastbite.token_service.dto.token.TokenValidationResponse;
 import ua.lastbite.token_service.dto.user.UserDto;
+import ua.lastbite.token_service.exception.TokenAlreadyUsedException;
+import ua.lastbite.token_service.exception.TokenExpiredException;
+import ua.lastbite.token_service.exception.TokenNotFoundException;
 import ua.lastbite.token_service.exception.UserNotFoundException;
+import ua.lastbite.token_service.model.Token;
+import ua.lastbite.token_service.repository.TokenRepository;
 import ua.lastbite.token_service.service.TokenService;
 import ua.lastbite.token_service.service.UserServiceClient;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -43,15 +51,30 @@ public class TokenControllerTest {
     @MockBean
     private UserServiceClient userServiceClient;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
     TokenRequest tokenRequest;
+    TokenValidationRequest tokenValidationRequest;
+    TokenValidationResponse tokenValidationResponse;
+    Token token;
 
     @BeforeEach
     void setUp() {
         tokenRequest = new TokenRequest(1);
+        tokenValidationResponse = new TokenValidationResponse(true, 1);
+        tokenValidationRequest = new TokenValidationRequest("tokenValue");
+
+        token = new Token();
+        token.setTokenValue("tokenValue");
+        token.setUserId(1);
+        token.setCreatedAt(LocalDateTime.now());
+        token.setExpiresAt(LocalDateTime.now().plusSeconds(86400L));
+        token.setUsed(false);
     }
 
     @Test
-    void generateTokenSuccessfully() throws Exception {
+    void testGenerateTokenSuccessfully() throws Exception {
         Mockito.when(userServiceClient.getUserById(tokenRequest.getUserId()))
                         .thenReturn(new UserDto());
 
@@ -71,17 +94,61 @@ public class TokenControllerTest {
     }
 
     @Test
-    void generateTokenUserNotFound() throws Exception {
+    void testGenerateTokenUserNotFound() throws Exception {
         Mockito.doThrow(new UserNotFoundException(1))
                         .when(tokenService).generateToken(tokenRequest);
 
         mockMvc.perform(post("/api/tokens/generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(tokenRequest)))
-                .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("User with ID 1 not found"));
     }
 
+    @Test
+    void testValidateTokenSuccessfully() throws Exception {
+        Mockito.when(tokenService.validateToken(tokenValidationRequest))
+                .thenReturn(tokenValidationResponse);
 
+        mockMvc.perform(post("/api/tokens/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tokenValidationRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testValidateTokenNotFound() throws Exception {
+        Mockito.when(tokenService.validateToken(tokenValidationRequest))
+                .thenThrow(new TokenNotFoundException(tokenValidationRequest.getTokenValue()));
+
+        mockMvc.perform(post("/api/tokens/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tokenValidationRequest)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Token not found: " + tokenValidationRequest.getTokenValue()));
+    }
+
+    @Test
+    void testValidateTokenIsExpired() throws Exception {
+        Mockito.when(tokenService.validateToken(tokenValidationRequest))
+                .thenThrow(new TokenExpiredException(tokenValidationRequest.getTokenValue()));
+
+        mockMvc.perform(post("/api/tokens/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tokenValidationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Token has expired: " + tokenValidationRequest.getTokenValue()));
+    }
+
+    @Test
+    void testValidateTokenIsAlreadyUsed() throws Exception {
+        Mockito.when(tokenService.validateToken(tokenValidationRequest))
+                .thenThrow(new TokenAlreadyUsedException(tokenValidationRequest.getTokenValue()));
+
+        mockMvc.perform(post("/api/tokens/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tokenValidationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Token has already been used: " + tokenValidationRequest.getTokenValue()));
+    }
 }
