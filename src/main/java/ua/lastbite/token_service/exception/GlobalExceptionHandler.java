@@ -36,6 +36,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(TokenAlreadyUsedException.class)
+    public ResponseEntity<String> handleTokenAlreadyUsed(TokenAlreadyUsedException ex) {
+        LOGGER.error("Handled TokenAlreadyUsedException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<String> handleTokenExpired(TokenExpiredException ex) {
+        LOGGER.error("Handled TokenExpiredException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<String> handleServiceUnavailable(ServiceUnavailableException ex) {
         LOGGER.error("Handled ServiceUnavailableException: {}", ex.getMessage());
