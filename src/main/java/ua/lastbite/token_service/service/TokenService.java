@@ -50,6 +50,7 @@ public class TokenService {
 
         LOGGER.info("Token successfully generated for user ID: {}", request.getUserId());
         tokenRepository.save(token);
+        LOGGER.info("Token saved");
         return tokenValue;
     }
 
