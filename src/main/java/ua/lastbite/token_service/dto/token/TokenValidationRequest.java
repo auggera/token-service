@@ -2,6 +2,7 @@ package ua.lastbite.token_service.dto.token;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import ua.lastbite.token_service.validation.ValidTokenFormat;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,5 +12,6 @@ import lombok.*;
 public class TokenValidationRequest {
 
     @NotBlank(message = "Token cannot be empty")
+    @ValidTokenFormat
     private String tokenValue;
 }
