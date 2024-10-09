@@ -1,6 +1,6 @@
 package ua.lastbite.token_service.dto.token;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @AllArgsConstructor
@@ -10,6 +10,6 @@ import lombok.*;
 @EqualsAndHashCode
 public class TokenRequest {
 
-    @NotBlank(message = "User ID cannot be empty")
+    @NotNull(message = "User ID cannot be empty")
     private Integer userId;
 }
