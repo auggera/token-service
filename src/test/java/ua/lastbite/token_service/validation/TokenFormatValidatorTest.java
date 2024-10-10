@@ -20,7 +20,7 @@ public class TokenFormatValidatorTest {
 
     @Test
     void testValidTokenFormat() {
-        String validToken = "abc123_DEF-456";
+        String validToken = "abc123+DEF/456=";
         assertTrue(validator.isValid(validToken, context), "Token format should be valid");
     }
 
@@ -50,7 +50,7 @@ public class TokenFormatValidatorTest {
 
     @Test
     void testTokenWithOnlyValidCharacters() {
-        String validToken = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
+        String validToken = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/==";
         assertTrue(validator.isValid(validToken, context), "Token containing only valid characters should be valid");
     }
 
