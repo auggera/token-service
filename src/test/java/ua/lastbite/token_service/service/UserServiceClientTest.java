@@ -45,7 +45,7 @@ public class UserServiceClientTest {
         mockedUser.setEmail("john@doe.com");
         mockedUser.setRole(UserRole.CUSTOMER);
 
-        url = userServiceUrl + "/users/" + USER_ID;
+        url = userServiceUrl + "/api/users/" + USER_ID;
     }
 
     @Test
