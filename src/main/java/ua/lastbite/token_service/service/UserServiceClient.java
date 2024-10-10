@@ -26,7 +26,7 @@ public class UserServiceClient {
     }
 
     public UserDto getUserById(Integer id) {
-        String url = userServiceUrl + "/users/" + id;
+        String url = userServiceUrl + "/api/users/" + id;
         try {
             LOGGER.info("Requesting user with ID: {}", id);
             UserDto userDto =  restTemplate.getForObject(url, UserDto.class);
