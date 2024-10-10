@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class TokenFormatValidator implements ConstraintValidator<ValidTokenFormat, String> {
 
-    private static final String TOKEN_REGEX = "^[a-zA-Z0-9_-]+$";
+    private static final String TOKEN_REGEX = "^[A-Za-z0-9+/]+={0,2}$";
 
     @Override
     public boolean isValid(String tokenValue, ConstraintValidatorContext context) {
