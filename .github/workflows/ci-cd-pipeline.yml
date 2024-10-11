@@ -28,5 +28,5 @@ jobs:
           distribution: 'temurin'
 
       - name: Build and Test with Maven
-        run: mvn clean package
+        run: mvn clean package -X
 
